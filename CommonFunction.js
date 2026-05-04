@@ -177,15 +177,6 @@ async function startNFCScan(targetCode, nextUrl) {
 
     // DÉCLENCHEMENT IMMÉDIAT DU PLEIN ÉCRAN
     // Comme startNFCScan est appelé par un click, on profite du geste utilisateur ICI
-    try {
-        const elem = document.documentElement;
-        if (elem.requestFullscreen) {
-            await elem.requestFullscreen().catch(() => {});
-        }
-        if (screen.orientation && screen.orientation.lock) {
-            await screen.orientation.lock('landscape').catch(() => {});
-        }
-    } catch (e) {}
 
     if (!('NDEFReader' in window)) {
         alert("NFC non supporté sur ce navigateur.");
@@ -198,7 +189,13 @@ async function startNFCScan(targetCode, nextUrl) {
         nfcAbortController = new AbortController();
 
         const ndef = new NDEFReader();
-        await ndef.scan({ signal: nfcAbortController.signal });
+        const scanPromise = ndef.scan({ signal: nfcAbortController.signal });
+
+        // Gestion du mode immersif en parallèle
+        document.documentElement.requestFullscreen().catch(() => {});
+        if (screen.orientation?.lock) screen.orientation.lock('landscape').catch(() => {});
+
+        await scanPromise;
         
         ndef.onreading = (event) => {
             if (isNFCProcessing) return; 
