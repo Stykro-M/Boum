@@ -70,24 +70,21 @@ async function activateNFC(targetCode, callback) {
     currentTargetCallback = callback;
     console.log("Recherche logicielle activée pour : " + targetCode);
 
+    // Si le système est déjà en écoute, on ne fait rien de plus (la cible est déjà mise à jour)
+    if (isNfcActive) return;
+
     try {
-        if (!isNfcActive) {
-            if (!nfcReader) nfcReader = new NDEFReader();
-            
-            // CRITIQUE : On lance le scan AVANT toute autre opération asynchrone
-            // pour garantir que le "User Gesture" est valide.
-            const promiseScan = nfcReader.scan();
+        if (!nfcReader) nfcReader = new NDEFReader();
 
-            // On lance le plein écran et l'orientation en parallèle sans "await"
-            // pour ne pas retarder ou bloquer le scan.
+        // ACTION CRITIQUE : scan() est appelé IMMEDIATEMENT.
+        // Pas d'await avant cette ligne pour préserver le "User Gesture".
+        await nfcReader.scan();
+        isNfcActive = true;
+        console.log("NFC activé avec succès.");
+
+        // On lance le plein écran APRES l'activation réussie du NFC
+        if (document.documentElement.requestFullscreen) {
             document.documentElement.requestFullscreen().catch(() => {});
-            if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('landscape').catch(() => {});
-            }
-
-            await promiseScan;
-            isNfcActive = true;
-            console.log("Système NFC matériel activé.");
         }
         
         nfcReader.onreading = (event) => {
