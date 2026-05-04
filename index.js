@@ -37,7 +37,7 @@ function playVideoSPA(videoId, nextStep, onEndCallback = null) {
             height: '360',
             width: '100%',
             videoId: videoId,
-            playerVars: { 'autoplay': 1, 'controls': 1, 'fs': 1, 'playsinline': 0 },
+            playerVars: { 'autoplay': 1, 'controls': 1, 'fs': 0, 'playsinline': 1 },
             events: {
                 'onReady': (event) => {
                     event.target.playVideo();

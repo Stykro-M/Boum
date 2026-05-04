@@ -104,18 +104,13 @@ function initGenericVideo(videoId, nextUrl) {
             'autoplay': 1,
             'mute': 0,
             'rel': 0,
-            'playsinline': 0, // 0 = plein écran forcé sur iOS
-            'fs': 1,          // Autorise le bouton plein écran
+            'playsinline': 1, // Garde la vidéo dans la page (évite le mode paysage forcé)
+            'fs': 0,          // Désactive le bouton plein écran
             'controls': 1
         },
         events: {
             'onReady': (event) => {
                 event.target.playVideo();
-                // On s'assure que l'iframe autorise le plein écran au niveau du navigateur
-                const iframe = event.target.getIframe();
-                if (iframe) {
-                    iframe.setAttribute('allow', 'autoplay; fullscreen');
-                }
             },
             'onStateChange': (event) => {
                 if (event.data === YT.PlayerState.ENDED) {
