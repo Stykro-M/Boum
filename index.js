@@ -3,6 +3,7 @@ let nextStepAfterVideo = "";
 let currentTargetCode = null;
 let currentTargetCallback = null;
 let nfcReader = null;
+let isNfcActive = false; // Flag pour savoir si le scan est déjà en cours
 let nextStepAfterVideoGlobal = "";
 let onVideoEndCallbackGlobal = null;
 
@@ -65,27 +66,20 @@ async function activateNFC(targetCode, callback) {
         return;
     }
 
-    // On s'assure d'être en plein écran paysage AVANT de lancer le scan
-    // car le changement d'orientation peut interrompre la session NFC
-    await enterImmersiveMode();
-    await new Promise(resolve => setTimeout(resolve, 300));
-
     currentTargetCode = targetCode;
     currentTargetCallback = callback;
     console.log("Recherche logicielle activée pour : " + targetCode);
 
     try {
+        // Si le lecteur scanne déjà, on met juste à jour la cible logicielle
+        if (isNfcActive) return;
+
         if (!nfcReader) {
             nfcReader = new NDEFReader();
         }
         
-        // On tente de lancer le scan. 
-        // Si déjà actif, on attrape l'erreur sans bloquer.
-        try {
-            await nfcReader.scan();
-        } catch (scanError) {
-            if (scanError.name !== 'InvalidStateError') throw scanError;
-        }
+        await nfcReader.scan();
+        isNfcActive = true;
         
         nfcReader.onreading = (event) => {
             // RÈGLE D'OR : Si vidéo en cours ou pas de cible, on ignore TOUT
@@ -122,17 +116,17 @@ async function activateNFC(targetCode, callback) {
 /**
  * Active le plein écran et force le mode paysage
  */
-async function enterImmersiveMode() {
+function enterImmersiveMode() {
     try {
         const elem = document.documentElement;
         if (elem.requestFullscreen) {
-            await elem.requestFullscreen();
+            elem.requestFullscreen().catch(() => {});
         } else if (elem.webkitRequestFullscreen) {
-            await elem.webkitRequestFullscreen();
+            elem.webkitRequestFullscreen().catch(() => {});
         }
         // Verrouille l'orientation en paysage si l'API est supportée
         if (screen.orientation && screen.orientation.lock) {
-            await screen.orientation.lock('landscape').catch(err => console.log("Orientation lock failed:", err));
+            screen.orientation.lock('landscape').catch(err => console.log("Orientation lock failed:", err));
         }
     } catch (err) {
         console.log("Immersion refusée :", err);
@@ -293,8 +287,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ÉTAPE 0 : Activation NFC ---
     const btnActivate = document.getElementById('btn-activate-adventure');
     if (btnActivate) {
-        btnActivate.addEventListener('click', async () => {
-            await enterImmersiveMode(); // On attend que le mode paysage soit stable
+        btnActivate.addEventListener('click', () => {
+            enterImmersiveMode(); // Lancé en parallèle du NFC
             activateNFC("CrEoDgReIrC", () => {
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                 showStep('step-start');
