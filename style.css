@@ -1,0 +1,63 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background-color: #2F5338;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Centrer verticalement aussi */
+    min-height: 100vh; /* Prend toute la hauteur de la fenêtre */
+}
+
+#app {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    text-align: center;
+    background: rgba(255,255,255,0.1); /* Un peu de fond pour le conteneur */
+    border-radius: 15px;
+}
+
+h1 {
+    color: #FFD700; /* Or */
+}
+
+p {
+    font-size: 1.2rem;
+}
+
+input[type="text"] {
+    padding: 12px;
+    margin: 15px 0;
+    border-radius: 8px;
+    border: none;
+    width: 80%;
+    font-size: 1rem;
+    text-align: center;
+}
+
+button {
+    padding: 12px 25px;
+    border-radius: 25px;
+    border: none;
+    background-color: #FFD700;
+    color: #2F5338;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+#btn-help {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background-color: #FFD700;
+    color: #2F5338;
+    font-weight: bold;
+    z-index: 1000;
+}
