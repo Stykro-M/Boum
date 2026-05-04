@@ -71,15 +71,22 @@ async function activateNFC(targetCode, callback) {
     console.log("Recherche logicielle activée pour : " + targetCode);
 
     try {
-        // Si le lecteur scanne déjà, on met juste à jour la cible logicielle
-        if (isNfcActive) return;
+        if (!isNfcActive) {
+            // 1. On lance d'abord l'immersion (Plein écran + Paysage)
+            // On n'utilise pas de fonctions externes pour rester dans la même tâche de clic
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                await elem.requestFullscreen().catch(() => {});
+            }
+            if (screen.orientation && screen.orientation.lock) {
+                await screen.orientation.lock('landscape').catch(() => {});
+            }
 
-        if (!nfcReader) {
-            nfcReader = new NDEFReader();
+            // 2. On lance le scan IMMEDIATEMENT après
+            if (!nfcReader) nfcReader = new NDEFReader();
+            await nfcReader.scan();
+            isNfcActive = true;
         }
-        
-        await nfcReader.scan();
-        isNfcActive = true;
         
         nfcReader.onreading = (event) => {
             // RÈGLE D'OR : Si vidéo en cours ou pas de cible, on ignore TOUT
@@ -288,7 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnActivate = document.getElementById('btn-activate-adventure');
     if (btnActivate) {
         btnActivate.addEventListener('click', () => {
-            enterImmersiveMode(); // Lancé en parallèle du NFC
             activateNFC("CrEoDgReIrC", () => {
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                 showStep('step-start');

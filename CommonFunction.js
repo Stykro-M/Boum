@@ -177,15 +177,15 @@ async function startNFCScan(targetCode, nextUrl) {
 
     // DÉCLENCHEMENT IMMÉDIAT DU PLEIN ÉCRAN
     // Comme startNFCScan est appelé par un click, on profite du geste utilisateur ICI
-    const appContainer = document.getElementById('app');
-    const requestFS = appContainer?.requestFullscreen || appContainer?.webkitRequestFullscreen;
-
-    if (requestFS) {
-        requestFS.call(appContainer).catch(() => {});
-        if (screen.orientation && screen.orientation.lock) {
-            screen.orientation.lock('landscape').catch(() => {});
+    try {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            await elem.requestFullscreen().catch(() => {});
         }
-    }
+        if (screen.orientation && screen.orientation.lock) {
+            await screen.orientation.lock('landscape').catch(() => {});
+        }
+    } catch (e) {}
 
     if (!('NDEFReader' in window)) {
         alert("NFC non supporté sur ce navigateur.");
