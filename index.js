@@ -81,11 +81,6 @@ async function activateNFC(targetCode, callback) {
         await nfcReader.scan();
         isNfcActive = true;
         console.log("NFC activé avec succès.");
-
-        // On lance le plein écran APRES l'activation réussie du NFC
-        if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(() => {});
-        }
         
         nfcReader.onreading = (event) => {
             // RÈGLE D'OR : Si vidéo en cours ou pas de cible, on ignore TOUT
@@ -116,26 +111,6 @@ async function activateNFC(targetCode, callback) {
 
     } catch (error) {
         alert("Erreur NFC : " + error);
-    }
-}
-
-/**
- * Active le plein écran et force le mode paysage
- */
-function enterImmersiveMode() {
-    try {
-        const elem = document.documentElement;
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen().catch(() => {});
-        } else if (elem.webkitRequestFullscreen) {
-            elem.webkitRequestFullscreen().catch(() => {});
-        }
-        // Verrouille l'orientation en paysage si l'API est supportée
-        if (screen.orientation && screen.orientation.lock) {
-            screen.orientation.lock('landscape').catch(err => console.log("Orientation lock failed:", err));
-        }
-    } catch (err) {
-        console.log("Immersion refusée :", err);
     }
 }
 

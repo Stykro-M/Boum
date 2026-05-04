@@ -96,30 +96,6 @@ function setupHelp(message) {
 function initGenericVideo(videoId, nextUrl) {
     isVideoPlaying = true;
 
-    const triggerFullscreen = () => {
-        const appContainer = document.getElementById('app');
-        if (!appContainer) return;
-
-        const requestFS = appContainer.requestFullscreen || 
-                          appContainer.webkitRequestFullscreen || 
-                          appContainer.mozRequestFullScreen || 
-                          appContainer.msRequestFullscreen;
-        if (requestFS) {
-            requestFS.call(appContainer).catch(() => {});
-        }
-    };
-
-    // 1. Tentative immédiate : fonctionne pour les énigmes (car appelé suite au clic "Valider")
-    triggerFullscreen();
-
-    // 2. Fallback : si la tentative immédiate échoue (cas du NFC avec redirection),
-    // le plein écran s'activera au TOUT PREMIER toucher de l'utilisateur sur la page.
-    const onFirstInteraction = () => {
-        triggerFullscreen();
-        document.removeEventListener('click', onFirstInteraction);
-    };
-    document.addEventListener('click', onFirstInteraction);
-
     new YT.Player('player', {
         height: '360',
         width: '100%',
@@ -143,11 +119,6 @@ function initGenericVideo(videoId, nextUrl) {
             },
             'onStateChange': (event) => {
                 if (event.data === YT.PlayerState.ENDED) {
-                    const fsElem = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-                    if (fsElem) {
-                        const exitFs = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
-                        if (exitFs) exitFs.call(document);
-                    }
                     window.location.href = nextUrl;
                 }
             }
@@ -175,9 +146,6 @@ async function startNFCScan(targetCode, nextUrl) {
         return;
     }
 
-    // DÉCLENCHEMENT IMMÉDIAT DU PLEIN ÉCRAN
-    // Comme startNFCScan est appelé par un click, on profite du geste utilisateur ICI
-
     if (!('NDEFReader' in window)) {
         alert("NFC non supporté sur ce navigateur.");
         return;
@@ -190,11 +158,6 @@ async function startNFCScan(targetCode, nextUrl) {
 
         const ndef = new NDEFReader();
         const scanPromise = ndef.scan({ signal: nfcAbortController.signal });
-
-        // Gestion du mode immersif en parallèle
-        document.documentElement.requestFullscreen().catch(() => {});
-        if (screen.orientation?.lock) screen.orientation.lock('landscape').catch(() => {});
-
         await scanPromise;
         
         ndef.onreading = (event) => {
