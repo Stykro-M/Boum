@@ -179,7 +179,19 @@ async function startNFCScan(targetCode, nextUrl) {
     // Comme startNFCScan est appelé par un click, on profite du geste utilisateur ICI
     const appContainer = document.getElementById('app');
     const requestFS = appContainer?.requestFullscreen || appContainer?.webkitRequestFullscreen;
-    if (requestFS) requestFS.call(appContainer).catch(() => {});
+
+    try {
+        if (requestFS) {
+            await requestFS.call(appContainer);
+            if (screen.orientation && screen.orientation.lock) {
+                await screen.orientation.lock('landscape');
+            }
+        }
+        // Petit délai pour laisser le temps au navigateur de stabiliser l'affichage
+        await new Promise(resolve => setTimeout(resolve, 300));
+    } catch (e) {
+        console.log("Mode immersif non activé:", e);
+    }
 
     if (!('NDEFReader' in window)) {
         alert("NFC non supporté sur ce navigateur.");

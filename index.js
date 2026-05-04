@@ -65,21 +65,31 @@ async function activateNFC(targetCode, callback) {
         return;
     }
 
+    // On s'assure d'être en plein écran paysage AVANT de lancer le scan
+    // car le changement d'orientation peut interrompre la session NFC
+    await enterImmersiveMode();
+    await new Promise(resolve => setTimeout(resolve, 300));
+
     currentTargetCode = targetCode;
     currentTargetCallback = callback;
     console.log("Recherche logicielle activée pour : " + targetCode);
 
-    // Si le lecteur est déjà initialisé, on ne relance pas scan()
-    if (nfcReader) return;
-
     try {
-        nfcReader = new NDEFReader();
-        await nfcReader.scan();
+        if (!nfcReader) {
+            nfcReader = new NDEFReader();
+        }
+        
+        // On tente de lancer le scan. 
+        // Si déjà actif, on attrape l'erreur sans bloquer.
+        try {
+            await nfcReader.scan();
+        } catch (scanError) {
+            if (scanError.name !== 'InvalidStateError') throw scanError;
+        }
         
         nfcReader.onreading = (event) => {
             // RÈGLE D'OR : Si vidéo en cours ou pas de cible, on ignore TOUT
             if (isVideoPlaying || !currentTargetCode) {
-                console.log("NFC ignoré (vidéo en cours ou aucune cible)");
                 return;
             }
 
@@ -180,7 +190,12 @@ function runStep(character) {
 
     switch(character) {
         case 'boum':
+            // Le scan Boum démarre automatiquement après la validation du code du jour
             showStep('step-scan-boum');
+            document.getElementById('title-scan-boum').textContent = "Scan en cours...";
+            activateNFC("UNRJzmxo31E", () => {
+                playVideoSPA("UNRJzmxo31E", "step-scan-mira", () => runStep('mira1'));
+            });
             break;
         case 'mira1':
             showStep('step-scan-mira');
@@ -278,8 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ÉTAPE 0 : Activation NFC ---
     const btnActivate = document.getElementById('btn-activate-adventure');
     if (btnActivate) {
-        btnActivate.addEventListener('click', () => {
-            enterImmersiveMode(); // On passe en plein écran dès l'activation
+        btnActivate.addEventListener('click', async () => {
+            await enterImmersiveMode(); // On attend que le mode paysage soit stable
             activateNFC("CrEoDgReIrC", () => {
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                 showStep('step-start');
@@ -300,26 +315,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const codeCorrect = (parseInt("2" + mois + jour) * 2).toString();
 
         if (input === codeCorrect || input === "1234") { // 1234 pour test rapide
-            showStep('step-scan-boum');
+            runStep('boum');
         } else {
             alert("Code incorrect.");
         }
     });
 
     // --- ÉTAPE 2 : Scan Boum ---
-    const btnScanBoum = document.getElementById('btn-start-scan-boum');
-    btnScanBoum.addEventListener('click', () => {
-        // IMPORTANT : On active le NFC AVANT le plein écran pour éviter les blocages de permission.
-        activateNFC("UNRJzmxo31E", () => {
-            playVideoSPA("UNRJzmxo31E", "step-scan-mira", () => runStep('mira1'));
-        });
-
-        // Une fois la requête NFC envoyée, on active le mode immersif (plein écran + paysage)
-        enterImmersiveMode();
-
-        document.getElementById('title-scan-boum').textContent = "Scan en cours...";
-    }, { once: true });
-
 });
 
 // L'API YouTube appelle cette fonction quand elle est prête
