@@ -1,5 +1,4 @@
 let ytPlayer;
-let nextStepAfterVideo = "";
 let currentTargetCode = null;
 let currentTargetCallback = null;
 let nfcReader = null;
@@ -30,7 +29,29 @@ function playVideoSPA(videoId, nextStep, onEndCallback = null) {
 
     console.log("Lecture vidéo : " + videoId);
 
+    const onStateChange = (event) => {
+        if (event.data === YT.PlayerState.ENDED) {
+            console.log("Fin de vidéo détectée pour : " + videoId);
+            isVideoPlaying = false;
+            
+            if (nextStepAfterVideoGlobal) {
+                showStep(nextStepAfterVideoGlobal);
+            }
+
+            if (onVideoEndCallbackGlobal) {
+                // On récupère le callback et on vide la globale avant l'appel 
+                // pour éviter toute exécution multiple
+                const callback = onVideoEndCallbackGlobal;
+                onVideoEndCallbackGlobal = null;
+                callback();
+            }
+        }
+    };
+
     if (ytPlayer) {
+        // Si le lecteur existe déjà, on change juste la vidéo. 
+        // Le listener onStateChange initialisé à la création utilisera les 
+        // valeurs à jour de nextStepAfterVideoGlobal et onVideoEndCallbackGlobal.
         ytPlayer.loadVideoById(videoId);
     } else {
         ytPlayer = new YT.Player('player', {
@@ -42,16 +63,7 @@ function playVideoSPA(videoId, nextStep, onEndCallback = null) {
                 'onReady': (event) => {
                     event.target.playVideo();
                 },
-                'onStateChange': (event) => {
-                    if (event.data === YT.PlayerState.ENDED) {
-                        isVideoPlaying = false;
-                        showStep(nextStepAfterVideoGlobal);
-
-                        if (onVideoEndCallbackGlobal) {
-                            onVideoEndCallbackGlobal();
-                        }
-                    }
-                }
+                'onStateChange': onStateChange
             }
         });
     }
@@ -167,7 +179,6 @@ function runStep(character) {
         case 'boum':
             // Le scan Boum démarre automatiquement après la validation du code du jour
             showStep('step-scan-boum');
-            document.getElementById('title-scan-boum').textContent = "Scan en cours...";
             activateNFC("UNRJzmxo31E", () => {
                 playVideoSPA("UNRJzmxo31E", "step-scan-mira", () => runStep('mira1'));
             });
