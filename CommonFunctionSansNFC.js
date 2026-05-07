@@ -1,8 +1,5 @@
-// Fichier de fonctions communes
+// Fichier de fonctions communes (Version SANS NFC)
 
-// Verrou pour éviter les doubles scans NFC ou les redirections multiples
-var isNFCProcessing = false; 
-var nfcAbortController = null;
 var isVideoPlaying = false;
 
 /**
@@ -12,7 +9,7 @@ function setupHelp(message) {
     const btnHelp = document.getElementById('btn-help');
     if (btnHelp) {
         btnHelp.addEventListener('click', () => {
-            const userInput = prompt("Rentrez le nom du personnage sur la planchette devant vous puis scannez la, ou tapez carte");
+            const userInput = prompt("Rentrez le nom du personnage sur la planchette devant vous, ou tapez 'carte'");
             
             if (userInput === null) return; // L'utilisateur a cliqué sur Annuler
 
@@ -81,9 +78,6 @@ function setupHelp(message) {
                     overlay.onclick = () => overlay.remove();
                     document.body.appendChild(overlay);
                     break;
-                case "nonfc": // Ajouté pour la redirection vers la version sans NFC
-                    window.location.href = 'indexSansNFC.html';
-                    break;
                 case "":
                     break; // Ne rien faire si vide
                 default:
@@ -123,77 +117,6 @@ function initGenericVideo(videoId, nextUrl) {
         }
     });
 }
-
-/**
- * Active le scan NFC (doit être appelé dans un événement de clic)
- */
-async function startNFCScan(targetCode, nextUrl) {
-    // 1. Détection stricte de la page vidéo pour couper le NFC
-    const isVideoPage = window.location.pathname.toLowerCase().includes('video') || !!document.getElementById('player');
-    const nfcLock = sessionStorage.getItem('nfc_lock');
-
-    // Cooldown réduit à 2 secondes (suffisant pour éloigner le tel)
-    const isCooldown = nfcLock && (Date.now() - parseInt(nfcLock) < 2000);
-
-    if (isNFCProcessing || isVideoPlaying || isVideoPage || isCooldown) {
-        // Si on est en cooldown ou sur une vidéo, on s'assure que le scan est coupé
-        if (nfcAbortController) {
-            nfcAbortController.abort();
-            nfcAbortController = null;
-        }
-        return;
-    }
-
-    if (!('NDEFReader' in window)) {
-        alert("NFC non supporté sur ce navigateur.");
-        return;
-    }
-
-    try {
-        // Annule un scan précédent s'il existe
-        if (nfcAbortController) nfcAbortController.abort();
-        nfcAbortController = new AbortController();
-
-        const ndef = new NDEFReader();
-        const scanPromise = ndef.scan({ signal: nfcAbortController.signal });
-        await scanPromise;
-        
-        ndef.onreading = (event) => {
-            if (isNFCProcessing) return; 
-
-            const decoder = new TextDecoder();
-            for (const record of event.message.records) {
-                const codeNFC = decoder.decode(record.data).trim();
-                
-                if (codeNFC === targetCode) {
-                    isNFCProcessing = true;
-                    sessionStorage.setItem('nfc_lock', Date.now().toString());
-                    
-                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]); 
-                    
-                    document.body.style.pointerEvents = "none";
-
-                    // On coupe le scan immédiatement après avoir trouvé le bon tag
-                    if (nfcAbortController) nfcAbortController.abort();
-                    nfcAbortController = null;
-
-                    setTimeout(() => {
-                        window.location.href = nextUrl;
-                    }, 800);
-                    break; // Sort de la boucle des enregistrements
-                }
-            }
-        };
-    } catch (error) {
-        isNFCProcessing = false; // Permet de réessayer si le scan a échoué à démarrer
-        alert("Erreur NFC : " + error);
-    }
-}
-
-// Sécurité ultime : On arrête tout scan NFC dès que l'utilisateur quitte la page actuelle
-window.addEventListener('pagehide', () => {
-    if (nfcAbortController) nfcAbortController.abort();
-});
 
 /**
  * Version de l'aide spécifique pour la page de test (SPA)
@@ -258,9 +181,6 @@ function setupHelpTest() {
                 overlay.innerHTML = '<img src="./Image/carteall.jpg" style="max-width:95%; max-height:95%; border:3px solid #FFD700; border-radius:10px;">';
                 overlay.onclick = () => overlay.remove();
                 document.body.appendChild(overlay);
-                break;
-            case "nonfc": // Ajouté pour la redirection vers la version sans NFC
-                window.location.href = 'indexSansNFC.html';
                 break;
             default:
                 alert("Nom non reconnu. Essayez 'boum', 'mira' ou 'carte'.");

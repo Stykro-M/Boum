@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chasse au Trésor - Aventure Sans NFC</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- API YouTube -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+    <div id="app">
+        <button id="btn-help">AIDE</button>
+
+        <!-- Étape 2 : Scan Boum -->
+        <div id="step-scan-boum" class="step">
+            <h1 id="title-scan-boum">L'aventure commence</h1>
+            <p>Dirigez-vous dans la cabane de départ Boum et entrez le code de la planchette DEPART.</p>
+            <input type="text" id="input-code-boum" placeholder="Code planchette">
+            <br>
+            <button id="btn-validate-boum">Valider</button>
+        </div>
+
+        <!-- Étape 3 : Vidéo & Énigme -->
+        <div id="step-video" class="step" style="display:none;">
+            <div id="player"></div>
+        </div>
+
+        <!-- Étape 4 : Scan Mira -->
+        <div id="step-scan-mira" class="step" style="display:none;">
+            <h1 id="title-scan-mira">Direction Mira</h1>
+            <p>Recherche du tag MIRA en cours...</p>
+            <div id="container-carte">
+                <img src="./Image/carte1.jpg" alt="Carte Mira" style="width: 100%; max-width: 400px; height: auto; border: 2px solid #FFD700; border-radius: 10px; margin-top: 20px;">
+            </div>
+            <input type="text" id="input-code-mira1" placeholder="Code planchette">
+            <br>
+            <button id="btn-validate-mira1">Valider</button>
+        </div>
+
+        <!-- Étape 5 : Mira 2 -->
+        <div id="step-scan-mira2" class="step" style="display:none;">
+            <h1>Mira - Tag 2</h1>
+            <p>Scannez le deuxième tag de Mira.</p>
+            <input type="text" id="input-code-mira2" placeholder="Code planchette">
+            <br>
+            <button id="btn-validate-mira2">Valider</button>
+        </div>
+
+        <!-- Étape Générique : Énigme -->
+        <div id="step-enigma" class="step" style="display:none;">
+            <h1 id="enigma-title">Énigme</h1>
+            <p id="enigma-prompt">Entrez le code :</p>
+            <img id="enigma-image" src="" style="display:none; width: 100%; max-width: 400px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #FFD700;">
+            <input type="text" id="enigma-input" placeholder="0000">
+            <br>
+            <button id="btn-validate-enigma">Valider</button>
+        </div>
+
+        <!-- Étapes de Scan suivantes -->
+        <div id="step-scan-thae" class="step" style="display:none;">
+            <h1>Direction Thae</h1>
+            <p>Cherchez le tag de THAE.</p>
+            <img src="./Image/carte2.jpg" style="width: 100%; max-width: 400px; border-radius: 10px;">
+            <input type="text" id="input-code-thae" placeholder="Code planchette">
+            <br>
+            <button id="btn-validate-thae">Valider</button>
+        </div>
+
+        <div id="step-scan-laya" class="step" style="display:none;">
+            <h1>Direction Laya</h1>
+            <p>Cherchez le tag de LAYA.</p>
+            <img src="./Image/carte3.jpg" style="width: 100%; max-width: 400px; border-radius: 10px;">
+            <input type="text" id="input-code-laya" placeholder="Code planchette">
+            <br>
+            <button id="btn-validate-laya">Valider</button>
+        </div>
+
+        <div id="step-scan-djouk" class="step" style="display:none;">
+            <h1>Direction Djouk</h1>
+            <p>Cherchez le tag de DJOUK.</p>
+            <img src="./Image/carte5.jpg" style="width: 100%; max-width: 400px; border-radius: 10px;">
+            <input type="text" id="input-code-djouk" placeholder="Code planchette">
+            <br>
+            <button id="btn-validate-djouk">Valider</button>
+        </div>
+
+        <div id="step-scan-yoko" class="step" style="display:none;">
+            <h1>Direction Yoko</h1>
+            <p>Cherchez le tag de YOKO.</p>
+            <input type="text" id="input-code-yoko" placeholder="Code planchette">
+            <br>
+            <button id="btn-validate-yoko">Valider</button>
+        </div>
+
+        <div id="step-scan-grejean" class="step" style="display:none;">
+            <h1>Direction Grejean</h1>
+            <p>Cherchez le tag de GREJEAN.</p>
+            <img src="./Image/carte6.jpg" style="width: 100%; max-width: 400px; border-radius: 10px;">
+            <input type="text" id="input-code-grejean" placeholder="Code planchette">
+            <br>
+            <button id="btn-validate-grejean">Valider</button>
+        </div>
+
+        <div id="step-scan-tilly" class="step" style="display:none;">
+            <h1>Direction Tilly</h1>
+            <p>Cherchez le tag de TILLY.</p>
+            <img src="./Image/carte7.jpg" style="width: 100%; max-width: 400px; border-radius: 10px;">
+            <input type="text" id="input-code-tilly" placeholder="Code planchette">
+            <br>
+            <button id="btn-validate-tilly">Valider</button>
+        </div>
+
+        <!-- Étape Final Scan : Retour à Boum -->
+        <div id="step-scan-boum2" class="step" style="display:none;">
+            <h1>Retour vers Boum</h1>
+            <p>Utilisez la dernière carte pour retrouver Boum et scanner son tag final.</p>
+            <img src="./Image/carte8.jpg" style="width: 100%; max-width: 400px; border-radius: 10px; border: 2px solid #FFD700;">
+            <input type="text" id="input-code-boum2" placeholder="Code planchette">
+            <br>
+            <button id="btn-validate-boum2">Valider</button>
+        </div>
+
+        <!-- Étape Spéciale : Instructions Tilly -->
+        <div id="step-tilly-instructions" class="step" style="display:none;">
+            <h1>Consignes de Tilly</h1>
+            <p id="tilly-text" style="font-size: 1.1rem; min-height: 80px;"></p>
+            <div style="margin-top: 20px;">
+                <button id="tilly-prev">Précédent</button>
+                <button id="tilly-next">Suivant</button>
+            </div>
+            <hr style="margin: 20px 0; opacity: 0.3;">
+            <div id="tilly-enigma-area">
+                <p>Une fois la rose des vents trouvée, entrez le code :</p>
+                <input type="text" id="tilly-input" placeholder="0000">
+                <br>
+                <button id="tilly-validate">Valider</button>
+            </div>
+        </div>
+
+        <!-- Étape de Fin -->
+        <div id="step-endgame" class="step" style="display:none;">
+            <h1>Félicitations !</h1>
+            <p>Bravo, vous avez trouvé tous les mots magiques !</p>
+            <p><strong>Tempête, Ruisseau, Elfes, Soigneur, Orienter et Rocher !</strong></p>
+            <p>Allez maintenant vérifier votre réponse à l'accueil.</p>
+            <p style="color: #d9534f; font-weight: bold; margin-top: 20px;">Restez derrière l'adulte et ne courez pas !</p>
+        </div>
+    </div>
+    <script src="CommonFunctionSansNFC.js"></script>
+    <script src="indexSansNFC.js"></script>
+</body>
+</html>
