@@ -12,7 +12,7 @@ function setupHelp(message) {
     const btnHelp = document.getElementById('btn-help');
     if (btnHelp) {
         btnHelp.addEventListener('click', () => {
-            const userInput = prompt("Rentrez le nom du personnage sur la planchette devant vous puis scannez la, ou tapez carte");
+            const userInput = prompt("AIDE : Tapez le nom d'un personnage (mira, thae...), 'carte' pour voir la carte, ou 'nonfc' pour la version sans scan.");
             
             if (userInput === null) return; // L'utilisateur a cliqué sur Annuler
 
@@ -28,38 +28,30 @@ function setupHelp(message) {
 
             switch (text) {
                 case "mira":
-                    window.location.href = 'BoumToMira.html';
                     if (isSPA) showStep('step-scan-mira');
                     else window.location.href = 'BoumToMira.html';
                     break;
                 case "thae":
                 case "tahe": // Gère l'erreur de frappe du code original
-                    window.location.href = 'MiraToThae.html';
                     if (isSPA) alert("Étape Thae non encore créée dans le test SPA");
                     else window.location.href = 'MiraToThae.html';
                     break;
                 case "laya":
-                    window.location.href = 'ThaeToLaya.html';
                     if (!isSPA) window.location.href = 'ThaeToLaya.html';
                     break;
                 case "djouk":
-                    window.location.href = 'LayaToDjouk.html';
                     if (!isSPA) window.location.href = 'LayaToDjouk.html';
                     break;
                 case "yoko":
-                    window.location.href = 'DjoukToYoko.html';
                     if (!isSPA) window.location.href = 'DjoukToYoko.html';
                     break;
                 case "grejean":
-                    window.location.href = 'YokoToGrejean.html';
                     if (!isSPA) window.location.href = 'YokoToGrejean.html';
                     break;
                 case "tilly":
-                    window.location.href = 'GrejeanToTilly.html';
                     if (!isSPA) window.location.href = 'GrejeanToTilly.html';
                     break;
                 case "boum":
-                    window.location.href = 'TillyToBoum.html';
                     if (isSPA) showStep('step-scan-boum');
                     else window.location.href = 'TillyToBoum.html';
                     break;
@@ -82,6 +74,7 @@ function setupHelp(message) {
                     document.body.appendChild(overlay);
                     break;
                 case "nonfc": // Ajouté pour la redirection vers la version sans NFC
+                    console.log("Redirection vers la version Sans NFC...");
                     window.location.href = 'indexSansNFC.html';
                     break;
                 case "":
@@ -203,7 +196,7 @@ function setupHelpTest() {
     if (!btnHelp) return;
 
     btnHelp.addEventListener('click', () => {
-        const userInput = prompt("AIDE TEST : Tapez 'boum', 'mira' ou 'carte'");
+        const userInput = prompt("AIDE TEST : Tapez 'boum', 'mira', 'carte' ou 'nonfc'");
         if (userInput === null) return;
 
         const text = userInput.trim().toLowerCase();
@@ -260,10 +253,11 @@ function setupHelpTest() {
                 document.body.appendChild(overlay);
                 break;
             case "nonfc": // Ajouté pour la redirection vers la version sans NFC
+                console.log("Redirection vers la version Sans NFC (Mode Test)...");
                 window.location.href = 'indexSansNFC.html';
                 break;
             default:
-                alert("Nom non reconnu. Essayez 'boum', 'mira' ou 'carte'.");
+                alert("Nom non reconnu. Essayez 'boum', 'mira', 'carte' ou 'nonfc'.");
         }
     });
 }
