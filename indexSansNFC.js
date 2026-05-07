@@ -247,8 +247,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialisation du bouton d'aide (défini dans CommonFunctionSansNFC.js)
     if (typeof setupHelpTest === 'function') setupHelpTest();
 
-    // Démarrage direct à l'étape Boum
-    runStep('boum');
+    // --- ÉTAPE 1 : Code de départ ---
+    const btnValidateCode = document.getElementById('btn-validate-code');
+    btnValidateCode.addEventListener('click', () => {
+        const input = document.getElementById('code-input').value;
+        
+        // Calcul du code dynamique
+        const maintenant = new Date();
+        const mois = String(maintenant.getMonth() + 1).padStart(2, '0');
+        const jour = String(maintenant.getDate()).padStart(2, '0');
+        const codeCorrect = (parseInt("2" + mois + jour) * 2).toString();
+
+        if (input === codeCorrect || input === "1234") { // 1234 pour test rapide
+            runStep('boum');
+        } else {
+            alert("Code incorrect.");
+        }
+    });
 });
 
 // L'API YouTube appelle cette fonction quand elle est prête

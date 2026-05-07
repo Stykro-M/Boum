@@ -12,8 +12,17 @@
     <div id="app">
         <button id="btn-help">AIDE</button>
 
+        <!-- Étape 1 : Code de départ -->
+        <div id="step-start" class="step">
+            <h1>Bienvenue</h1>
+            <p>Entrez le code du jour pour commencer :</p>
+            <input type="text" id="code-input" placeholder="Code">
+            <br>
+            <button id="btn-validate-code">Valider</button>
+        </div>
+
         <!-- Étape 2 : Scan Boum -->
-        <div id="step-scan-boum" class="step">
+        <div id="step-scan-boum" class="step" style="display:none;">
             <h1 id="title-scan-boum">L'aventure commence</h1>
             <p>Dirigez-vous dans la cabane de départ Boum et entrez le code de la planchette DEPART.</p>
             <input type="text" id="input-code-boum" placeholder="Code planchette">
