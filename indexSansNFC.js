@@ -224,7 +224,7 @@ function setupTillyInstructions() {
         "3: Le prochain s'assoit sur le 3ème cailloux en partant de la gauche du dernier assis.",
         "4: Le suivant s'assoit sur le 2ème cailloux en partant à droite du précédent.",
         "5: Puis quelqu'un se place sur le 5ème cailloux à gauche.",
-        "6: Le dernier reste assis, les autres vont chercher la rose des vents sur sa gauche en directtion du Verdier."
+        "6: Le dernier reste assis, les autres vont chercher la rose des vents en direction de son dos lorsqu'il est assis."
     ];
     let current = 0;
     const text = document.getElementById('tilly-text');
